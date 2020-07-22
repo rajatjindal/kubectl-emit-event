@@ -2,14 +2,19 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/rajatjindal/kubectl-emitevent/pkg/k8s"
 	"github.com/spf13/cobra"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/cli-runtime/pkg/resource"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+
+	//needed for cloud provider auth
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 //Version is set during build time
@@ -19,17 +24,29 @@ var Version = "unknown"
 type EmitEventOptions struct {
 	configFlags *genericclioptions.ConfigFlags
 	iostreams   genericclioptions.IOStreams
+	factory     cmdutil.Factory
 
-	args         []string
-	kubeclient   kubernetes.Interface
-	printVersion bool
+	Namespace        string
+	EnforceNamespace bool
+	BuilderArgs      []string
+
+	Builder       func() *resource.Builder
+	DynamicClient dynamic.Interface
+	kubeclient    kubernetes.Interface
+
+	FilenameOptions *resource.FilenameOptions
+
+	eventType string
+	reason    string
+	message   string
 }
 
 // NewEmitEventOptions provides an instance of EmitEventOptions with default values
 func NewEmitEventOptions(streams genericclioptions.IOStreams) *EmitEventOptions {
 	return &EmitEventOptions{
-		configFlags: genericclioptions.NewConfigFlags(true),
-		iostreams:   streams,
+		configFlags:     genericclioptions.NewConfigFlags(true),
+		FilenameOptions: &resource.FilenameOptions{},
+		iostreams:       streams,
 	}
 }
 
@@ -42,17 +59,14 @@ func NewCmdEmitEvent(streams genericclioptions.IOStreams) *cobra.Command {
 		Short:        "emits an event to given object",
 		SilenceUsage: true,
 		RunE: func(c *cobra.Command, args []string) error {
-			if o.printVersion {
-				fmt.Println(Version)
-				os.Exit(0)
-			}
-
 			if err := o.Complete(c, args); err != nil {
 				return err
 			}
+
 			if err := o.Validate(); err != nil {
 				return err
 			}
+
 			if err := o.Run(); err != nil {
 				return err
 			}
@@ -61,22 +75,47 @@ func NewCmdEmitEvent(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVar(&o.printVersion, "version", false, "prints version of plugin")
+	cmd.Flags().StringVar(&o.eventType, "type", corev1.EventTypeNormal, "Type of event")
+
+	cmd.Flags().StringVar(&o.reason, "reason", "", "reason of event")
+	cmd.MarkFlagRequired("reason")
+
+	cmd.Flags().StringVar(&o.message, "message", "", "message to be passed")
+	cmd.MarkFlagRequired("message")
+
 	o.configFlags.AddFlags(cmd.Flags())
+
+	usage := "identifying the resource to get from a server."
+	cmdutil.AddFilenameOptionFlags(cmd, o.FilenameOptions, usage)
+
+	matchVersionKubeConfigFlags := cmdutil.NewMatchVersionFlags(o.configFlags)
+	o.factory = cmdutil.NewFactory(matchVersionKubeConfigFlags)
 
 	return cmd
 }
 
 // Complete sets all information required for updating the current context
 func (o *EmitEventOptions) Complete(cmd *cobra.Command, args []string) error {
-	o.args = args
+	o.Builder = o.factory.NewBuilder
+	o.BuilderArgs = args
 
-	config, err := o.configFlags.ToRESTConfig()
+	var err error
+	o.Namespace, o.EnforceNamespace, err = o.factory.ToRawKubeConfigLoader().Namespace()
 	if err != nil {
 		return err
 	}
 
-	o.kubeclient, err = kubernetes.NewForConfig(config)
+	clientConfig, err := o.factory.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+
+	o.kubeclient, err = kubernetes.NewForConfig(clientConfig)
+	if err != nil {
+		return err
+	}
+
+	o.DynamicClient, err = dynamic.NewForConfig(clientConfig)
 	if err != nil {
 		return err
 	}
@@ -86,8 +125,8 @@ func (o *EmitEventOptions) Complete(cmd *cobra.Command, args []string) error {
 
 // Validate ensures that all required arguments and flag values are provided
 func (o *EmitEventOptions) Validate() error {
-	if len(o.args) > 0 {
-		return fmt.Errorf("no arguments expected. got %d arguments", len(o.args))
+	if len(o.BuilderArgs) == 0 && cmdutil.IsFilenameSliceEmpty(o.FilenameOptions.Filenames, o.FilenameOptions.Kustomize) {
+		return fmt.Errorf("required resource not specified")
 	}
 
 	return nil
@@ -95,11 +134,25 @@ func (o *EmitEventOptions) Validate() error {
 
 // Run emits the event to given k8s object
 func (o *EmitEventOptions) Run() error {
-	pod, err := o.kubeclient.CoreV1().Pods("kube-system").Get("coredns-6955765f44-7lh5l", metav1.GetOptions{})
+	r := o.Builder().
+		WithScheme(scheme.Scheme, scheme.Scheme.PrioritizedVersionsAllGroups()...).
+		NamespaceParam(o.Namespace).DefaultNamespace().
+		FilenameParam(o.EnforceNamespace, o.FilenameOptions).
+		ResourceTypeOrNameArgs(true, o.BuilderArgs...).
+		SingleResourceType().
+		Latest().
+		Do()
+
+	err := r.Err()
 	if err != nil {
 		return err
 	}
 
-	k8s.EmitEvent(o.kubeclient, pod, "my-own-reason", "my-own-message")
+	object, err := r.Object()
+	if err != nil {
+		return err
+	}
+
+	k8s.EmitEvent(o.kubeclient, object, o.eventType, o.reason, o.message)
 	return nil
 }
