@@ -18,7 +18,7 @@ spec:
         arch: amd64
     {{addURIAndSha "https://github.com/rajatjindal/kubectl-emitevent/releases/download/{{ .TagName }}/kubectl-emitevent_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
     bin: kubectl-emitevent
-  shortDescription: emit event for the requested object
+  shortDescription: Emit Kubernetes Events for the requested object
   description: |
-    This plugin emits the event for the requested object
+    This plugin emits the Kubernetes Events for the requested object
 
