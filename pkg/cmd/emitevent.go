@@ -17,6 +17,32 @@ import (
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
+const usage = `kubectl emitevent [flags]
+
+Example
+
+## emitevent
+➜  kubectl emitevent daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
+
+## verify event was generated and attached to the object
+➜  kubectl describe daemonset/kube-proxy -n kube-system
+
+Name:           kube-proxy
+Selector:       k8s-app=kube-proxy
+Node-Selector:  beta.kubernetes.io/os=linux
+Labels:         k8s-app=kube-proxy
+Annotations:    deprecated.daemonset.template.generation: 1
+.
+.
+.
+.
+.
+Events:
+Type    Reason               Age    From               Message
+----    ------               ----   ----               -------
+Normal  foo-reason           4s    kubectl-emitevent  bar-message
+`
+
 //Version is set during build time
 var Version = "unknown"
 
@@ -55,8 +81,8 @@ func NewCmdEmitEvent(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewEmitEventOptions(streams)
 
 	cmd := &cobra.Command{
-		Use:          "emitevent [flags]",
-		Short:        "emits an event to given object",
+		Use:          usage,
+		Short:        "Emits a Kubernetes Event for the requested object",
 		SilenceUsage: true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
