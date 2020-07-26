@@ -4,20 +4,20 @@ metadata:
   name: emitevent
 spec:
   version: {{ .TagName }}
-  homepage: https://github.com/rajatjindal/kubectl-emitevent
+  homepage: https://github.com/rajatjindal/kubectl-emit-event
   platforms:
   - selector:
       matchLabels:
         os: darwin
         arch: amd64
-    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emitevent/releases/download/{{ .TagName }}/kubectl-emitevent_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
-    bin: kubectl-emitevent
+    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
+    bin: kubectl-emit-event
   - selector:
       matchLabels:
         os: linux
         arch: amd64
-    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emitevent/releases/download/{{ .TagName }}/kubectl-emitevent_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
-    bin: kubectl-emitevent
+    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
+    bin: kubectl-emit-event
   shortDescription: Emit Kubernetes Events for the requested object
   description: |
     This plugin emits the Kubernetes Events for the requested object
