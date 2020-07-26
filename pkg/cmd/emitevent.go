@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/rajatjindal/kubectl-emitevent/pkg/k8s"
+	"github.com/rajatjindal/kubectl-emit-event/pkg/k8s"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -17,12 +17,12 @@ import (
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
-const usage = `kubectl emitevent [flags]
+const usage = `kubectl emit-event [flags]
 
 Example
 
 ## emitevent
-➜  kubectl emitevent daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
+➜  kubectl emit-event daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
 
 ## verify event was generated and attached to the object
 ➜  kubectl describe daemonset/kube-proxy -n kube-system
@@ -38,9 +38,9 @@ Annotations:    deprecated.daemonset.template.generation: 1
 .
 .
 Events:
-Type    Reason               Age    From               Message
-----    ------               ----   ----               -------
-Normal  foo-reason           4s    kubectl-emitevent  bar-message
+  Type    Reason      Age    From                Message
+  ----    ------      ----   ----                -------
+  Normal  foo-reason  13s    kubectl-emit-event  bar-message
 `
 
 //Version is set during build time

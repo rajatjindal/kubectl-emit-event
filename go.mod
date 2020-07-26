@@ -1,4 +1,4 @@
-module github.com/rajatjindal/kubectl-emitevent
+module github.com/rajatjindal/kubectl-emit-event
 
 go 1.13
 

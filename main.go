@@ -17,7 +17,7 @@ package main
 import (
 	"os"
 
-	"github.com/rajatjindal/kubectl-emitevent/pkg/cmd"
+	"github.com/rajatjindal/kubectl-emit-event/pkg/cmd"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 

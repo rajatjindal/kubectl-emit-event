@@ -16,7 +16,7 @@ import (
 func EmitEvent(kubeclientset kubernetes.Interface, pod runtime.Object, eventType, reason, message string) {
 	eventBroadcaster := record.NewBroadcaster()
 	eventBroadcaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{Interface: kubeclientset.CoreV1().Events(v1.NamespaceAll)})
-	recorder := eventBroadcaster.NewRecorder(scheme.Scheme, corev1.EventSource{Component: "kubectl-emitevent"})
+	recorder := eventBroadcaster.NewRecorder(scheme.Scheme, corev1.EventSource{Component: "kubectl-emit-event"})
 	recorder.Event(pod, eventType, reason, message)
 	// as the event is called asynchronously,
 	// the process exit without sending the event
