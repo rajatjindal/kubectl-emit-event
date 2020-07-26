@@ -1,6 +1,6 @@
-# kubectl-emitevent
+# kubectl-emit-event
 
-`kubectl-emitevent` is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) that emits event for requested object.
+`kubectl-emit-event` is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) that emits event for requested object.
 
 # Usage
 
@@ -8,7 +8,7 @@
 <p>
 
 ```bash
-➜  kubectl-emitevent git:(master) minikube start
+➜  kubectl-emit-event git:(master) minikube start
 😄  minikube v1.10.1 on Darwin 10.15.5
 ✨  Using the hyperkit driver based on existing profile
 👍  Starting control plane node minikube in cluster minikube
@@ -25,11 +25,11 @@
 </details>
 
 
-Run `kubectl-emitevent` daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
+Run `kubectl emit-event` daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
 
 ```bash
   ## emit event
-  ➜  kubectl-emitevent daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
+  ➜  kubectl emit-event daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
 
   ## verify event
   ➜  kubectl describe daemonset/kube-proxy -n kube-system
@@ -45,9 +45,9 @@ Annotations:    deprecated.daemonset.template.generation: 1
 .
 .
 Events:
-  Type    Reason               Age    From               Message
-  ----    ------               ----   ----               -------
-  Normal  foo-reason           4s    kubectl-emitevent  bar-message
+  Type    Reason      Age    From                Message
+  ----    ------      ----   ----                -------
+  Normal  foo-reason  13s    kubectl-emit-event  bar-message
 
 ```
 
