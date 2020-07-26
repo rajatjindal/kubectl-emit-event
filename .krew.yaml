@@ -1,7 +1,7 @@
 apiVersion: krew.googlecontainertools.github.com/v1alpha2
 kind: Plugin
 metadata:
-  name: emitevent
+  name: emit-event
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/rajatjindal/kubectl-emit-event
@@ -22,3 +22,7 @@ spec:
   description: |
     This plugin emits the Kubernetes Events for the requested object
 
+    Example
+    -------
+
+    kubectl emit-event daemonset/kube-proxy -n kube-system --reason "foo-reason" --message "bar-message"
