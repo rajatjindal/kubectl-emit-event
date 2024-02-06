@@ -1,7 +1,7 @@
 apiVersion: krew.googlecontainertools.github.com/v1alpha2
 kind: Plugin
 metadata:
-  name: whoami
+  name: emit-event
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/rajatjindal/kubectl-emit-event
