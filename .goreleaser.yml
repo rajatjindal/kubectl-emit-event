@@ -4,8 +4,6 @@ builds:
   binary: kubectl-emit-event
   env:
   - CGO_ENABLED=0
-  ldflags:
-  - "-s -w -X github.com/rajatjindal/kubectl-whoami/pkg/cmd.Version={{.Version}}"
   goos:
   - darwin
   - linux
