@@ -1,7 +1,7 @@
 apiVersion: krew.googlecontainertools.github.com/v1alpha2
 kind: Plugin
 metadata:
-  name: emit-event
+  name: whoami
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/rajatjindal/kubectl-emit-event
@@ -11,13 +11,46 @@ spec:
         os: darwin
         arch: amd64
     {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-emit-event
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: arm64
+    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_darwin_arm64.tar.gz" .TagName }}
+    files:
+    - from: "*"
+      to: "."
     bin: kubectl-emit-event
   - selector:
       matchLabels:
         os: linux
         arch: amd64
     {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
+    files:
+    - from: "*"
+      to: "."
     bin: kubectl-emit-event
+  - selector:
+      matchLabels:
+        os: linux
+        arch: arm64
+    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_linux_arm64.tar.gz" .TagName }}
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-emit-event
+  - selector:
+      matchLabels:
+        os: windows
+        arch: amd64
+    {{addURIAndSha "https://github.com/rajatjindal/kubectl-emit-event/releases/download/{{ .TagName }}/kubectl-emit-event_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-emit-event.exe
   shortDescription: Emit Kubernetes Events for the requested object
   description: |
     This plugin emits the Kubernetes Events for the requested object
